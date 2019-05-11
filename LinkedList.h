@@ -4,8 +4,8 @@
 //
 // Header File for Basic Singly-Linked List Functions
 
-#include <stdio.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 typedef struct node *List;
