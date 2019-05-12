@@ -6,7 +6,8 @@
 
 #include "LinkedList.h"
 
-// Struct for a singly-linked list node
+// The List data type is a pointer to the head of a singly-linked list
+// node containing an integer data field
 struct node {
 	int data;
 	struct node * next;
