@@ -13,7 +13,7 @@
 // and of course two pointers to the left and right subtrees
 struct node {
     int data, height;
-    Tree L, R;
+    struct node *L, *R;
 };
 
 // ***** Private Functions *****
