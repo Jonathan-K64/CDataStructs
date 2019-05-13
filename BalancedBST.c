@@ -1,4 +1,4 @@
-// Jonathan Kraft 04.29.19
+// Jonathan Kraft 05.13.19
 //
 // BalancedBST.c
 //
@@ -17,16 +17,6 @@ struct node {
 };
 
 // ***** Private Functions *****
-
-// Malloc a leaf node with x as its data value
-static Tree makeLeaf (int x) {
-    Tree t = malloc (sizeof (struct node));
-    t->data = x;
-    t->height = 0;
-    t->L = NULL;
-    t->R = NULL;
-    return t;
-}
 
 // Perform a rotation to bring t->R up to be the root; return the new tree
 static Tree leftRotate (Tree t) {
@@ -76,45 +66,6 @@ static Tree rebalance (Tree t) {
     return t;
 }
 
-// Set the tptr address to be the to largest node in t and delete that node; 
-// return the modified tree
-static Tree deleteLargest (Tree t, Tree *tptr) {
-    // Set the tptr address to be the root if there is no right subtree
-    if (t->R == NULL) {
-        *tptr = t;
-        return t->L;
-    } 
-    // Else recursively find the largest from the right subtree
-    // Rebalance and recalculate heights if necessary
-    else {
-        t->R = deleteLargest (t->R, tptr);
-        t = rebalance (t);
-        t->height = 1 + MAX (treeHeight (t->L), treeHeight (t->R));
-        return t;
-    }
-}
-
-// Delete the root of the tree by either promoting a child if possible 
-// or else deleting its predecessor node (always a leaf) and replacing 
-// the root's data value with the predecessor's data value
-static Tree deleteRoot (Tree t) {
-    // Case 1: No left child, promote right child
-    if (t->L == NULL) 
-        return t->R;
-    // Case 2: No right child, promote left child             
-    if (t->R == NULL) 
-        return t->L;        
-    // Case 3: Two children, delete predessor and adopt its data value                                  
-    Tree new;
-    t->L = deleteLargest (t->L, &new);
-    new->L = t->L;
-    new->R = t->R;
-    new = rebalance (new);
-    new->height = 1 + MAX (treeHeight (t->L), treeHeight (t->R));
-    free (t);
-    return new;
-}
-
 // ***** Public Functions *****
 
 // Create an empty tree and return it
@@ -122,11 +73,40 @@ Tree createNew (void) {
     return NULL;
 }
 
+// Checks to see if the tree is empty, returns true if so and false otherwise
+bool isEmpty (Tree t) {
+    if (t == NULL)
+        return true;
+    return false;
+}
+
+// Checks to see if the value x is present in the tree, returns true if so
+// and false otherwise
+bool containsX (Tree t, int x) {
+    // If we reach a null pointer, the value has not been found
+    if (t == NULL)
+        return false;
+    // Recursively check the left subtree
+    if (x < t->data)
+        return containsX (t->L, x);
+    // Recursively check the right subtree
+    if (x > t->data)
+        return containsX (t->R, x);
+    // Else x matches the current root, so it is present
+    return true;
+}
+
 // Insert the value x into the tree and then return the larger tree
 Tree insertX (Tree t, int x) {
-    // When we reach a null location, add the leaf here
-    if (t == NULL) 
-        return makeLeaf (x);
+    // When we reach a null location, malloc space for a leaf and add it here
+    if (t == NULL) {
+        Tree t = malloc (sizeof (struct node));
+        t->data = x;
+        t->height = 0;
+        t->L = NULL;
+        t->R = NULL;
+        return t;
+    }
     // Recursively insert x into the left subtree, perform necessary rebalances, and
     // recalculate the height of the root
     else if (x <= t->data) {
@@ -137,12 +117,10 @@ Tree insertX (Tree t, int x) {
     } 
     // Recursively insert x into the right subtree, perform necessary rebalances, and
     // recalculate the height of the root
-    else {
-        t->R = insertX (t->R, x);
-        t = rebalance (t);
-        t->height = 1 + MAX (treeHeight (t->L), treeHeight (t->R));
-        return t;
-    }
+    t->R = insertX (t->R, x);
+    t = rebalance (t);
+    t->height = 1 + MAX (treeHeight (t->L), treeHeight (t->R));
+    return t;
 }
 
 // Delete the value x from tree if it is present, freeing its storage and return
@@ -168,10 +146,65 @@ Tree deleteX (Tree t, int x) {
         return t;
     } 
     // The value is located in the root, so it must be deleted
-    else {
-        t = deleteRoot (t);
-        return t;
+    t = deleteRoot (t, &x);
+    return t;
+}
+
+// Delete the root of the tree and enter its data value into the iptr
+// address
+Tree deleteRoot (Tree t, int *iptr) {
+    *iptr = t->data;
+    // Case 1: No left child, promote right child
+    if (t->L == NULL) 
+        return t->R;
+    // Case 2: No right child, promote left child             
+    if (t->R == NULL) 
+        return t->L;        
+    // Case 3: Two children, delete predessor and adopt its data value                                  
+    t->L = deleteMax (t->L, &(t->data));
+    t = rebalance (t);
+    t->height = 1 + MAX (treeHeight (t->L), treeHeight (t->R));
+    return t;
+}
+
+// Delete the maximum value within the tree and enter its data value into 
+// the iptr address
+Tree deleteMax (Tree t, int *iptr) {
+    // If there is no right subtree, the root is the max element; enter the 
+    // root's data value into the iptr address and set the new root to be the
+    // left subtree
+    if (t->R == NULL) {
+        *iptr = t->data;
+        Tree new = t->L;
+        free (t);
+        return new;
     }
+    // Else recursively find the largest from the right subtree
+    // Rebalance and recalculate heights if necessary
+    t->R = deleteMax (t->R, iptr);
+    t = rebalance (t);
+    t->height = 1 + MAX (treeHeight (t->L), treeHeight (t->R));
+    return t;
+}
+
+// Delete the minimum value within the tree and enter its data value into 
+// the iptr address
+Tree deleteMin (Tree t, int *iptr) {
+    // If there is no left subtree, the root is the min element; enter the 
+    // root's data value into the iptr address and set the new root to be
+    // the right subtree
+    if (t->L == NULL) {
+        *iptr = t->data;
+        Tree new = t->R;
+        free (t);
+        return new;
+    }
+    // Else recursively find the smallest from the left subtree
+    // Rebalance and recalculate heights if necessary
+    t->L = deleteMin (t->L, iptr);
+    t = rebalance (t);
+    t->height = 1 + MAX (treeHeight (t->L), treeHeight (t->R));
+    return t;
 }
 
 // Destroy a tree and free all of its storage; return an empty tree
@@ -210,6 +243,19 @@ void postorder (Tree t) {
     postorder (t->L);
     postorder (t->R);
     printf ("%d\n", t->data);
+}
+
+// Destroy a tree, printing all of its data values in postorder with respect
+// to the structure before freeing each node's storage
+Tree dump (Tree t) {
+    if (t == NULL)
+        return t;
+    t->L = dump (t->L);
+    t->R = dump (t->R);
+    printf ("%d\n", t->data);
+    free (t);
+    t = NULL;
+    return t;
 }
 
 // Return number of nodes in the tree
