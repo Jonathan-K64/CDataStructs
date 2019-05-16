@@ -2,7 +2,7 @@
 //
 // BalancedBST.h
 //
-// Header file for an AVL Tree (a.k.a. Balanaced Binary Search Tree)
+// Header file for a Balanced Binary Search Tree (a.k.a. AVL Tree)
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -12,7 +12,7 @@
 typedef struct node *Tree;
 
 // Create an empty tree and return it
-Tree createNew (void);
+void createNew (Tree *tptr);
 
 // Checks to see if the tree is empty, returns true if so and false otherwise
 bool isEmpty (Tree t);
@@ -22,26 +22,29 @@ bool isEmpty (Tree t);
 bool containsX (Tree t, int x);
 
 // Insert the value x into the tree and then return the larger tree
-Tree insertX (Tree t, int x);
+void insertX (Tree *tptr, int x);
 
-// Delete the value x from tree if it is present, freeing its storage and return
-// modified tree
-Tree deleteX (Tree t, int x);
+// Delete the value x from the tree if it is present, freeing its storage and return
+// true, unless the value is not present in which case false is returned
+bool deleteX (Tree *tptr, int x);
 
-// Delete the root of the tree and enter its data value into the iptr
-// address
-Tree deleteRoot (Tree t, int *iptr);
+// Delete the root of the tree, freeing its storage, inputting its data 
+// into the iptr address and return true, unless the tree is null in which 
+// case false is returned and the iptr address is set to 0
+bool deleteRoot (Tree *tptr, int *iptr);
 
-// Delete the maximum value within the tree and enter its data value into 
-// the iptr address
-Tree deleteMax (Tree t, int *iptr);
+// Delete the largest value in the tree, freeing its storage, inputting its 
+// data into the iptr address and return true.  If the tree is null, false 
+// is returned instead and the iptr address is set to 0
+bool deleteMax (Tree *tptr, int *iptr);
 
-// Delete the minimum value within the tree and enter its data value into 
-// the iptr address
-Tree deleteMin (Tree t, int *iptr);
+// Delete the smallest value in the tree, freeing its storage, inputting its 
+// data into the iptr address and return true.  If the tree is null, false 
+// is returned instead and the iptr address is set to 0
+bool deleteMin (Tree *tptr, int *iptr);
 
-// Destroy a tree and free all of its storage; return an empty tree
-Tree deleteAll (Tree t);
+// Destroy a tree and free all of its storage, leaving an empty tree
+void deleteAll (Tree *tptr);
 
 // Print all values in the tree in preorder with respect to the structure
 void preorder (Tree t);
@@ -54,7 +57,7 @@ void postorder (Tree t);
 
 // Destroy a tree, printing all of its data values in postorder with respect
 // to the structure before freeing each node's storage
-Tree dump (Tree t);
+void dump (Tree *tptr);
 
 // Return number of nodes in the tree
 int treeSize (Tree t);
