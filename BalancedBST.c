@@ -2,7 +2,7 @@
 //
 // BalancedBST.c
 //
-// Source file for an AVL Tree (a.k.a. Balanaced Binary Search Tree)
+// Source file for a Balanced Binary Search Tree (a.k.a. AVL Tree)
 
 #include "BalancedBST.h"
 #define MAX(X, Y) (((X) > (Y)) ? (X) : (Y))
@@ -18,66 +18,66 @@ struct node {
 
 // ***** Private Functions *****
 
-// Perform a rotation to bring t->R up to be the root; return the new tree
-static Tree leftRotate (Tree t) {
-    Tree temp = t->R;
-    t->R = temp->L;
-    t->height = 1 + MAX (treeHeight (t->L), treeHeight (t->R));
-    temp->L = t;
-    temp->height = 1 + MAX (treeHeight (t->L), treeHeight (t->R));
-    return temp;
+// Perform a rotation to bring the node to the root of the root up to the root
+static void leftRotate (Tree *tptr) {
+    Tree temp = (*tptr)->R;
+    (*tptr)->R = temp->L;
+    (*tptr)->height = 1 + MAX (treeHeight ((*tptr)->L), treeHeight ((*tptr)->R));
+    temp->L = *tptr;
+    temp->height = 1 + MAX (treeHeight (temp->L), treeHeight (temp->R));
+    *tptr = temp;
 }
 
-// Perform a rotation to bring t->L up to be the root; return the new tree
-static Tree rightRotate (Tree t) {
-    Tree temp = t->L;
-    t->L = temp->R;
-    t->height = 1 + MAX (treeHeight (t->L), treeHeight (t->R));
-    temp->R = t;
-    temp->height = 1 + MAX (treeHeight (t->L), treeHeight (t->R));
-    return temp;
+// Perform a rotation to bring the node to the root of the root up to the root
+static void rightRotate (Tree *tptr) {
+    Tree temp = (*tptr)->L;
+    (*tptr)->L = temp->R;
+    (*tptr)->height = 1 + MAX (treeHeight ((*tptr)->L), treeHeight ((*tptr)->R));
+    temp->R = *tptr;
+    temp->height = 1 + MAX (treeHeight (temp->L), treeHeight (temp->R));
+    *tptr = temp;
 }
 
 // Compare heights of subtrees to determine what rotations are necessary.
 // Perform the necessary rotations and return the new balanced tree.
-static Tree rebalance (Tree t) {
+static void rebalance (Tree *tptr) {
     // Rotations when left taller than right
-    if ((treeHeight (t->L) - treeHeight (t->R)) > 1) {
+    if ((treeHeight ((*tptr)->L) - treeHeight ((*tptr)->R)) > 1) {
         // Single Rotation
-        if (treeHeight (t->L->L) >= treeHeight (t->L->R)) 
-            t = rightRotate (t);
+        if (treeHeight ((*tptr)->L->L) >= treeHeight ((*tptr)->L->R)) 
+            rightRotate (tptr);
         // Double Rotation
         else {
-            t->L = leftRotate (t->L);
-            t = rightRotate (t);
+            leftRotate (&(*tptr)->L);
+            rightRotate (tptr);
         }
     }
     // Rotations when right taller than left
-    else if ((treeHeight (t->R) - treeHeight (t->L)) > 1) {
+    else if ((treeHeight ((*tptr)->R) - treeHeight ((*tptr)->L)) > 1) {
         // Single Rotation
-        if (treeHeight (t->R->R) >= treeHeight(t->R->L)) 
-            t = leftRotate (t);
+        if (treeHeight ((*tptr)->R->R) >= treeHeight((*tptr)->R->L)) 
+            leftRotate (tptr);
         // Double Rotation
         else {
-            t->R = rightRotate (t->R);
-            t = leftRotate (t);
+            rightRotate (&(*tptr)->R);
+            leftRotate (tptr);
         }
     }
-    return t;
 }
 
 // ***** Public Functions *****
 
 // Create an empty tree and return it
-Tree createNew (void) {
-    return NULL;
+void createNew (Tree *tptr) {
+    *tptr = NULL;
 }
 
 // Checks to see if the tree is empty, returns true if so and false otherwise
 bool isEmpty (Tree t) {
     if (t == NULL)
         return true;
-    return false;
+    else 
+        return false;
 }
 
 // Checks to see if the value x is present in the tree, returns true if so
@@ -87,135 +87,167 @@ bool containsX (Tree t, int x) {
     if (t == NULL)
         return false;
     // Recursively check the left subtree
-    if (x < t->data)
+    else if (x < t->data)
         return containsX (t->L, x);
     // Recursively check the right subtree
-    if (x > t->data)
+    else if (x > t->data)
         return containsX (t->R, x);
     // Else x matches the current root, so it is present
-    return true;
+    else 
+        return true;
 }
 
 // Insert the value x into the tree and then return the larger tree
-Tree insertX (Tree t, int x) {
+void insertX (Tree *tptr, int x) {
     // When we reach a null location, malloc space for a leaf and add it here
-    if (t == NULL) {
-        Tree t = malloc (sizeof (struct node));
-        t->data = x;
-        t->height = 0;
-        t->L = NULL;
-        t->R = NULL;
-        return t;
+    if (*tptr == NULL) {
+        *tptr = malloc (sizeof (struct node));
+        (*tptr)->data = x;
+        (*tptr)->height = 0;
+        (*tptr)->L = NULL;
+        (*tptr)->R = NULL;
     }
-    // Recursively insert x into the left subtree, perform necessary rebalances, and
-    // recalculate the height of the root
-    else if (x <= t->data) {
-        t->L = insertX (t->L, x);
-        t = rebalance (t);
-        t->height = 1 + MAX (treeHeight (t->L), treeHeight (t->R));
-        return t;
+    // Recursively insert x into the left subtree, perform necessary rebalances,
+    // and recalculate the height of the root
+    else if (x <= (*tptr)->data) {
+        insertX (&(*tptr)->L, x);
+        rebalance (tptr);
+        (*tptr)->height = 1 + MAX (treeHeight ((*tptr)->L), treeHeight ((*tptr)->R));
     } 
-    // Recursively insert x into the right subtree, perform necessary rebalances, and
-    // recalculate the height of the root
-    t->R = insertX (t->R, x);
-    t = rebalance (t);
-    t->height = 1 + MAX (treeHeight (t->L), treeHeight (t->R));
-    return t;
+    // Recursively insert x into the right subtree, perform necessary rebalances,
+    // and recalculate the height of the root
+    else {
+        insertX (&(*tptr)->R, x);
+        rebalance (tptr);
+        (*tptr)->height = 1 + MAX (treeHeight ((*tptr)->L), treeHeight ((*tptr)->R));
+    }
 }
 
-// Delete the value x from tree if it is present, freeing its storage and return
-// modified tree
-Tree deleteX (Tree t, int x) {
+// Delete the value x from the tree if it is present, freeing its storage and return
+// true, unless the value is not present in which case false is returned
+bool deleteX (Tree *tptr, int x) {
     // If we reach a null location, the value is not present
-    if (t == NULL) 
-        return t;
+    if (*tptr == NULL) 
+        return false;
     // Recursively search for x in the left subtree to delete it; perform 
     // necessary rebalances, and recalculate the height of the root
-    else if (x < t->data) {
-        t->L = deleteX (t->L, x);
-        t = rebalance (t);
-        t->height = 1 + MAX (treeHeight (t->L), treeHeight (t->R));
-        return t;
+    else if (x < (*tptr)->data) {
+        bool output = deleteX (&(*tptr)->L, x);
+        rebalance (tptr);
+        (*tptr)->height = 1 + MAX (treeHeight ((*tptr)->L), treeHeight ((*tptr)->R));
+        return output;
     } 
     // Recursively search for x in the right subtree to delete it; perform 
     // necessary rebalances, and recalculate the height of the root
-    else if (x > t->data) {
-        t->R = deleteX (t->R, x);
-        t = rebalance (t);
-        t->height = 1 + MAX (treeHeight (t->L), treeHeight (t->R));
-        return t;
+    else if (x > (*tptr)->data) {
+        bool output = deleteX (&(*tptr)->R, x);
+        rebalance (tptr);
+        (*tptr)->height = 1 + MAX (treeHeight ((*tptr)->L), treeHeight ((*tptr)->R));
+        return output;
     } 
     // The value is located in the root, so it must be deleted
-    t = deleteRoot (t, &x);
-    return t;
+    else {
+        deleteRoot (tptr, &x);
+        return true;
+    }
 }
 
-// Delete the root of the tree and enter its data value into the iptr
-// address
-Tree deleteRoot (Tree t, int *iptr) {
-    *iptr = t->data;
+// Delete the root of the tree, freeing its storage, inputting its data 
+// into the iptr address and return true, unless the tree is null in which 
+// case false is returned and the iptr address is set to 0
+bool deleteRoot (Tree *tptr, int *iptr) {
+    // If the tree is null, set the iptr address to 0 and return false
+    if (*tptr == NULL) {
+        *iptr = 0;
+        return false;
+    }
+    // If the tree is not null, input the root data into the iptr address
+    *iptr = (*tptr)->data;
     // Case 1: No left child, promote right child
-    if (t->L == NULL) 
-        return t->R;
+    if ((*tptr)->L == NULL) {
+        *tptr = (*tptr)->R;
+        return true;
+    }
     // Case 2: No right child, promote left child             
-    if (t->R == NULL) 
-        return t->L;        
+    else if ((*tptr)->R == NULL) {
+        *tptr = (*tptr)->L;
+        return true;
+    }
     // Case 3: Two children, delete predessor and adopt its data value                                  
-    t->L = deleteMax (t->L, &(t->data));
-    t = rebalance (t);
-    t->height = 1 + MAX (treeHeight (t->L), treeHeight (t->R));
-    return t;
+    else {
+        deleteMax (&(*tptr)->L, &(*tptr)->data);
+        rebalance (tptr);
+        (*tptr)->height = 1 + MAX (treeHeight ((*tptr)->L), treeHeight ((*tptr)->R));
+        return true;
+    }
 }
 
-// Delete the maximum value within the tree and enter its data value into 
-// the iptr address
-Tree deleteMax (Tree t, int *iptr) {
+// Delete the largest value in the tree, freeing its storage, inputting its 
+// data into the iptr address and return true.  If the tree is null, false 
+// is returned instead and the iptr address is set to 0
+bool deleteMax (Tree *tptr, int *iptr) {
+    // If the tree is null, set the iptr address to 0 and return false
+    if (*tptr == NULL) {
+        *iptr = 0;
+        return false;
+    }
     // If there is no right subtree, the root is the max element; enter the 
     // root's data value into the iptr address and set the new root to be the
     // left subtree
-    if (t->R == NULL) {
-        *iptr = t->data;
-        Tree new = t->L;
-        free (t);
-        return new;
+    else if ((*tptr)->R == NULL) {
+        *iptr = (*tptr)->data;
+        Tree new = (*tptr)->L;
+        free (*tptr);
+        *tptr = new;
+        return true;
     }
     // Else recursively find the largest from the right subtree
     // Rebalance and recalculate heights if necessary
-    t->R = deleteMax (t->R, iptr);
-    t = rebalance (t);
-    t->height = 1 + MAX (treeHeight (t->L), treeHeight (t->R));
-    return t;
+    else {
+        bool output = deleteMax(&(*tptr)->R, iptr);
+        rebalance (tptr);
+        (*tptr)->height = 1 + MAX (treeHeight ((*tptr)->L), treeHeight ((*tptr)->R));
+        return output;
+    }
 }
 
-// Delete the minimum value within the tree and enter its data value into 
-// the iptr address
-Tree deleteMin (Tree t, int *iptr) {
+// Delete the smallest value in the tree, freeing its storage, inputting its 
+// data into the iptr address and return true.  If the tree is null, false 
+// is returned instead and the iptr address is set to 0
+bool deleteMin (Tree *tptr, int *iptr) {
+    // If the tree is null, set the iptr address to 0 and return false
+    if (*tptr == NULL) {
+        *iptr = 0;
+        return false;
+    }
     // If there is no left subtree, the root is the min element; enter the 
-    // root's data value into the iptr address and set the new root to be
-    // the right subtree
-    if (t->L == NULL) {
-        *iptr = t->data;
-        Tree new = t->R;
-        free (t);
-        return new;
+    // root's data value into the iptr address and set the new root to be the
+    // right subtree
+    else if ((*tptr)->L == NULL) {
+        *iptr = (*tptr)->data;
+        Tree new = (*tptr)->R;
+        free (*tptr);
+        *tptr = new;
+        return true;
     }
     // Else recursively find the smallest from the left subtree
     // Rebalance and recalculate heights if necessary
-    t->L = deleteMin (t->L, iptr);
-    t = rebalance (t);
-    t->height = 1 + MAX (treeHeight (t->L), treeHeight (t->R));
-    return t;
+    else {
+        bool output = deleteMin(&(*tptr)->L, iptr);
+        rebalance (tptr);
+        (*tptr)->height = 1 + MAX (treeHeight ((*tptr)->L), treeHeight ((*tptr)->R));
+        return output;
+    }
 }
 
-// Destroy a tree and free all of its storage; return an empty tree
-Tree deleteAll (Tree t) {
-    if (t == NULL) 
-        return t;
-    t->L = deleteAll (t->L);
-    t->R = deleteAll (t->R);
-    free (t);
-    t = NULL;
-    return t;
+// Destroy a tree and free all of its storage, leaving an empty tree
+void deleteAll (Tree *tptr) {
+    if (*tptr == NULL) 
+        return;
+    deleteAll (&(*tptr)->L);
+    deleteAll (&(*tptr)->R);
+    free (*tptr);
+    *tptr = NULL;
 }
 
 // Print all values in the tree in preorder with respect to the structure
@@ -247,15 +279,14 @@ void postorder (Tree t) {
 
 // Destroy a tree, printing all of its data values in postorder with respect
 // to the structure before freeing each node's storage
-Tree dump (Tree t) {
-    if (t == NULL)
-        return t;
-    t->L = dump (t->L);
-    t->R = dump (t->R);
-    printf ("%d\n", t->data);
-    free (t);
-    t = NULL;
-    return t;
+void dump (Tree *tptr) {
+    if (*tptr == NULL) 
+        return;
+    dump (&(*tptr)->L);
+    dump (&(*tptr)->R);
+    printf ("%d\n", (*tptr)->data);
+    free (*tptr);
+    *tptr = NULL;
 }
 
 // Return number of nodes in the tree
