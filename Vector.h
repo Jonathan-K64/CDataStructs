@@ -16,12 +16,12 @@ void createNew (Vector *vptr);
 
 // Append the value x to the end of the vector, expanding the size
 // of the vector if necessary
-void appendX (Vector *vptr, int x);
+void appendX (Vector v, int x);
 
 // Set the specified location to the integer x and return true.  Print
 // a message to stderr and return false if loc is 0, negative, or a 
 // value beyond the end of the vector
-bool setLocValue (Vector *vptr, int loc, int x);
+bool setLocValue (Vector v, int loc, int x);
 
 // Copy the value at a specified location into the iptr address and
 // return true.  Return false and set the iptr address to 0 if the
@@ -30,7 +30,7 @@ bool peekLoc (Vector v, int loc, int *iptr);
 
 // Swap the values at the given locations and return true.  Return false
 // if either location is 0, negative, or beyond the end of the vector
-bool swapLocs (Vector *vptr, int loc1, int loc2);
+bool swapLocs (Vector v, int loc1, int loc2);
 
 // Print all values in the vector
 void printAll (Vector v);
@@ -38,3 +38,9 @@ void printAll (Vector v);
 // Print all vector indices between the start and end bounds. (The start
 // value is an inclusive bound, the end value is an exclusive bound.)
 void printFrom (Vector v, int start, int end);
+
+// Free all space occupied by the vector and set the pointer to null
+void deleteAll (Vector *vptr);
+
+// Print the data in the vector and free all storage
+void dump (Vector *vptr);
