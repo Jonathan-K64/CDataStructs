@@ -87,7 +87,7 @@ void printAll (Vector v) {
 
 // Print all vector indices between the start and end bounds. (The start
 // value is an inclusive bound, the end value is an exclusive bound.)
-void printFrom (Vector v, int start, int end) {
+void printRange (Vector v, int start, int end) {
 	// If the bounds do not intersect with any vector values, return
 	if ((start >= v->end) || (end <= 0) || (start >= end))
 		return;
@@ -112,12 +112,4 @@ void deleteAll (Vector *vptr) {
 void dump (Vector *vptr) {
 	printAll (*vptr);
 	deleteAll (vptr);
-}
-
-int main (int argc, char ** argv) {
-	Vector v;
-	createNew (&v);
-	for (int i = 1; i < 20; i++)
-		appendX (&v, i);
-	printAll (v);
 }
