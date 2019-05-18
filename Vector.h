@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// Vector data structure
 typedef struct vector *Vector;
 
 // Set the vector at the given pointer to be a vector struct with 
