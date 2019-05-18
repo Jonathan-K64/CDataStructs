@@ -6,6 +6,10 @@
 
 #include "Vector.h"
 
+// The Vector data type is a pointer to a struct containing a pointer to the 
+// first element in the array as well as information about how much space
+// has been allocated for the array and the last address associated with the 
+// vector.
 struct vector {
 	int size, end;
 	int *array;
