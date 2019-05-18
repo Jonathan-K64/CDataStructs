@@ -16,7 +16,7 @@ void createNew (Vector *vptr);
 
 // Append the value x to the end of the vector, expanding the size
 // of the vector if necessary
-void appendX (Vector v, int x);
+void appendX (Vector *vptr, int x);
 
 // Set the specified location to the integer x and return true.  Print
 // a message to stderr and return false if loc is 0, negative, or a 
@@ -37,7 +37,7 @@ void printAll (Vector v);
 
 // Print all vector indices between the start and end bounds. (The start
 // value is an inclusive bound, the end value is an exclusive bound.)
-void printFrom (Vector v, int start, int end);
+void printRange (Vector v, int start, int end);
 
 // Free all space occupied by the vector and set the pointer to null
 void deleteAll (Vector *vptr);
