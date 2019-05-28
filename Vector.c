@@ -8,8 +8,7 @@
 
 // The Vector data type is a pointer to a struct containing a pointer to the 
 // first element in the array as well as information about how much space
-// has been allocated for the array and the last address associated with the 
-// vector.
+// has been allocated for the array and the first address for appending
 struct vector {
 	int size, end;
 	int *array;
@@ -17,11 +16,30 @@ struct vector {
 
 // ***** Private Functions *****
 
-// Creates a new array, double the size of the old array, and copy over
-// all the values
-static void resize (Vector *vptr) {
-	(*vptr)->array = realloc ((*vptr)->array, 2 * (*vptr)->size * sizeof (int));
-	(*vptr)->size *= 2;
+// Takes an array and its size and performs an in-place O(nlogn) amortized
+// quicksort algorithm
+static void quickSort (int *array, int arrSize) {
+	// If the size of the array is 1 or less, it must already be sorted
+	if (arrSize <= 1)
+		return;
+	// Arbitrarily choose element 0 as the splitter
+	int bound = 0;
+	int temp;
+	for (int i = 1; i < arrSize; i++)
+		// If the value is below the splitter, increase the bound by 1
+		// and swap the value with the element at that bound index
+		if (array[i] < array[0]) {
+			temp = array[i];
+			array[i] = array[(++bound)];
+			array[bound] = temp;
+		}
+	// Swap the splitter with the bound index
+	temp = array[0];
+	array[0] = array[bound];
+	array[bound] = temp;
+	// Recursively sort the split groups
+	quickSort (array, bound);
+	quickSort (array + bound + 1, arrSize - bound - 1);
 }
 
 // ***** Public Functions *****
@@ -37,13 +55,15 @@ void createNew (Vector *vptr) {
 
 // Append the value x to the end of the vector, expanding the size
 // of the vector if necessary
-void appendX (Vector *vptr, int x) {
+void appendX (Vector v, int x) {
 	// If we're out of space, double the size
-	if ((*vptr)->end == (*vptr)->size)
-		resize (vptr);
-	int end = (*vptr)->end;
-	(*vptr)->array[end] = x;
-	(*vptr)->end++;
+	if (v->end == v->size) {
+		v->array = realloc (v->array, 2 * v->size * sizeof (int));
+		v->size *= 2;
+	}
+	int end = v->end;
+	v->array[end] = x;
+	v->end++;
 }
 
 // Set the specified location to the integer x and return true.  Print
@@ -83,6 +103,11 @@ bool swapLocs (Vector v, int loc1, int loc2) {
 	return true;
 }
 
+// Sort all the values in the vector using quickSort
+void vectorSort (Vector v) {
+	quickSort (v->array, v->end);
+}
+
 // Print all values in the vector
 void printAll (Vector v) {
 	for (int i = 0; i < v->end; i++)
@@ -109,7 +134,6 @@ void printRange (Vector v, int start, int end) {
 void deleteAll (Vector *vptr) {
 	free ((*vptr)->array);
 	free (*vptr);
-	*vptr = NULL;
 }
 
 // Print the data in the vector and free all storage
