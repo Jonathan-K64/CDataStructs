@@ -17,7 +17,7 @@ void createNew (Vector *vptr);
 
 // Append the value x to the end of the vector, expanding the size
 // of the vector if necessary
-void appendX (Vector *vptr, int x);
+void appendX (Vector v, int x);
 
 // Set the specified location to the integer x and return true.  Print
 // a message to stderr and return false if loc is 0, negative, or a 
@@ -32,6 +32,9 @@ bool peekLoc (Vector v, int loc, int *iptr);
 // Swap the values at the given locations and return true.  Return false
 // if either location is 0, negative, or beyond the end of the vector
 bool swapLocs (Vector v, int loc1, int loc2);
+
+// Sort all the values in the vector using quickSort
+void vectorSort (Vector v);
 
 // Print all values in the vector
 void printAll (Vector v);
